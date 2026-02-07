@@ -35,8 +35,30 @@ const mod = __turbopack_context__.x("node:async_hooks", () => require("node:asyn
 
 module.exports = mod;
 }),
-"[project]/proxy.ts [middleware] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"[project]/proxy.ts [middleware] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
 
+__turbopack_context__.s([
+    "config",
+    ()=>config,
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+(()=>{
+    const e = new Error("Cannot find module '@clerk/nextjs/server'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
+;
+const __TURBOPACK__default__export__ = clerkMiddleware();
+const config = {
+    matcher: [
+        // Skip Next.js internals and all static files, unless found in search params
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Always run for API routes
+        '/(api|trpc)(.*)'
+    ]
+};
 }),
 ];
 

@@ -417,3 +417,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 .env
+# clerk configuration (can include secrets)
+/.clerk/
