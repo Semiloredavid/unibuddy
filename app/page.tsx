@@ -1,12 +1,46 @@
 export default function Home() {
   return (
-    <div className="max-w-4xl mx-auto p-12 text-center">
-      <h1 className="text-6xl font-black bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">
-        Welcome to Unibuddy
-      </h1>
-      <p className="text-2xl text-gray-600 mb-12">
-        Upload syllabus → Auto dates → Calendar + Reminders
-      </p>
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900/50 to-gray-950 overflow-hidden relative">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-pink-500/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-40 w-72 h-72 bg-yellow-500/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+      </div>
+      
+      <div className="relative z-10 flex flex-col justify-center min-h-screen p-8 md:p-12 lg:p-16">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Title with enhanced glow */}
+          <div className="relative mb-12 group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl group-hover:scale-105 transition-all duration-500"></div>
+            <h1 className="relative text-5xl md:text-7xl lg:text-8xl font-black bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-2xl tracking-tight leading-tight">
+              Welcome to
+              <br />
+              <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text">Unibuddy</span>
+            </h1>
+          </div>
+          
+          {/* Enhanced subtitle card */}
+          <div className="max-w-3xl mx-auto mb-16">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-800/50 to-gray-800/50 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-slate-900/50 transform group-hover:scale-[1.02] transition-all duration-500"></div>
+              <p className="relative text-lg md:text-2xl lg:text-3xl font-light text-gray-200/90 py-10 px-8 tracking-wide leading-relaxed">
+                Upload syllabus → Auto dates → Calendar + Reminders
+              </p>
+            </div>
+          </div>
+
+          {/* Enhanced footer accent */}
+          <div className="space-y-6 pt-8">
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mx-auto w-64 md:w-96"></div>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-xs md:text-sm text-gray-400/80 font-mono tracking-wider">
+              <span className="px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full border border-white/10"></span>
+              <span className="hidden sm:inline">•</span>
+              <span className="px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full border border-white/10"></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
