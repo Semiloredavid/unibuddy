@@ -1,6 +1,6 @@
+import { SignUpButton } from "@clerk/nextjs"
 
 export default function Home() {
-
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900/50 to-gray-950 overflow-hidden relative">
       {/* Animated background particles */}
@@ -27,10 +27,29 @@ export default function Home() {
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-slate-800/50 to-gray-800/50 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-slate-900/50 transform group-hover:scale-[1.02] transition-all duration-500"></div>
               <p className="relative text-lg md:text-2xl lg:text-3xl font-light text-gray-200/90 py-10 px-8 tracking-wide leading-relaxed">
-                Upload syllabus → Auto dates → Calendar + Reminders
+              One upload. Full semester planned.
               </p>
             </div>
           </div>
+{/* Second enhanced subtitle card (click to sign up) */}
+<SignUpButton mode="redirect">
+  <div className="max-w-3xl mx-auto mb-16">
+    <div className="relative group cursor-pointer">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-purple-900/20 to-pink-900/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-purple-900/30 transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      </div>
+
+      <div className="relative w-full py-6 px-8">
+        <p className="text-lg md:text-xl font-bold text-white group-hover:text-blue-200 transition-colors duration-300">
+          Sign up to get started
+        </p>
+
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </div>
+    </div>
+  </div>
+</SignUpButton>
+
 
           {/* Enhanced footer accent */}
           <div className="space-y-6 pt-8">
