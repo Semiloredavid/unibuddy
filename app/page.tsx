@@ -1,4 +1,6 @@
+
 export default function Home() {
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-900/50 to-gray-950 overflow-hidden relative">
       {/* Animated background particles */}
