@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///Users/semiloreoshiyoye/Desktop/unibuddy/app/sign-up/%5B%5B...sign-up%5D%5D/page.tsx"],"sourcesContent":["import { SignUp } from '@clerk/nextjs'\n\nexport default function Page() {\n  return <SignUp />\n}\n"],"names":[],"mappings":";;;;;AAAA;;;AAEe,SAAS;IACtB,qBAAO,8OAAC,gMAAM;;;;;AAChB"}}]
+}
