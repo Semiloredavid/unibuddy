@@ -417,4 +417,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 .env
-.env.local
+.env.local.env.local
+.env*.local
