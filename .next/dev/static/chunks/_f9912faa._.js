@@ -7,7 +7,7 @@ __turbopack_context__.s([
     ()=>Dashboard
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$shared$2f$dist$2f$runtime$2f$react$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@clerk/shared/dist/runtime/react/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$clerk$2d$react$2f$dist$2f$chunk$2d$36EXAXVP$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@clerk/clerk-react/dist/chunk-36EXAXVP.mjs [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
@@ -16,197 +16,358 @@ var _s = __turbopack_context__.k.signature();
 ;
 function Dashboard() {
     _s();
-    const { user, isLoaded } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$shared$2f$dist$2f$runtime$2f$react$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useUser"])();
-    if (!isLoaded) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        children: "Loading..."
-    }, void 0, false, {
-        fileName: "[project]/app/dashboard/page.tsx",
-        lineNumber: 9,
-        columnNumber: 25
-    }, this);
+    const [files, setFiles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [tasks, setTasks] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    // Handle file selection
+    const handleFileChange = (e)=>{
+        if (e.target.files) {
+            setFiles(Array.from(e.target.files).slice(0, 6));
+        }
+    };
+    // Parse PDFs
+    const handleParse = async ()=>{
+        if (files.length === 0) return;
+        setLoading(true);
+        setError('');
+        const formData = new FormData();
+        files.forEach((file)=>formData.append('files', file));
+        try {
+            const res = await fetch('/api/parse', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Parsing failed');
+            }
+            setTasks(data.tasks || []);
+        } catch (err) {
+            setError(err.message);
+        }
+        setLoading(false);
+    };
+    // Download ICS dynamically from tasks
+    const handleDownloadICS = async ()=>{
+        if (!tasks.length) return;
+        try {
+            const res = await fetch('/api/calendar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tasks
+                })
+            });
+            if (!res.ok) {
+                throw new Error('Failed to generate calendar');
+            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'unibuddy-calendar.ics';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-[calc(100vh-4rem)] bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-12",
+        className: "min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-900 p-8",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "max-w-4xl mx-auto space-y-8",
+            className: "max-w-5xl mx-auto",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex justify-between items-start",
+                    className: "flex justify-between items-center mb-8",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                            className: "text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent",
+                            children: "Unibuddy Dashboard"
+                        }, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 86,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$clerk$2d$react$2f$dist$2f$chunk$2d$36EXAXVP$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserButton"], {}, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 89,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/dashboard/page.tsx",
+                    lineNumber: 85,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-white/10 backdrop-blur-xl rounded-2xl p-8 mb-8 border border-white/20",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            className: "text-2xl font-bold mb-4 text-white",
+                            children: "Upload Syllabi (1–6 PDFs)"
+                        }, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 94,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                            type: "file",
+                            multiple: true,
+                            accept: ".pdf,.docx",
+                            onChange: handleFileChange,
+                            className: "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 w-full max-w-md px-4 py-6 border-2 border-dashed border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors"
+                        }, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 98,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mt-4 space-y-2",
+                            children: files.map((file, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex justify-between text-sm text-white/80",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: file.name
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/dashboard/page.tsx",
+                                            lineNumber: 110,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>setFiles(files.filter((_, idx)=>idx !== i)),
+                                            className: "text-red-400 hover:text-red-300",
+                                            children: "✕"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/dashboard/page.tsx",
+                                            lineNumber: 111,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, i, true, {
+                                    fileName: "[project]/app/dashboard/page.tsx",
+                                    lineNumber: 109,
+                                    columnNumber: 15
+                                }, this))
+                        }, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 107,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            onClick: handleParse,
+                            disabled: loading || files.length === 0,
+                            className: "mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl",
+                            children: loading ? 'Parsing...' : `Parse ${files.length} File${files.length > 1 ? 's' : ''}`
+                        }, void 0, false, {
+                            fileName: "[project]/app/dashboard/page.tsx",
+                            lineNumber: 123,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/dashboard/page.tsx",
+                    lineNumber: 93,
+                    columnNumber: 9
+                }, this),
+                error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-xl mb-6",
+                    children: error
+                }, void 0, false, {
+                    fileName: "[project]/app/dashboard/page.tsx",
+                    lineNumber: 134,
+                    columnNumber: 11
+                }, this),
+                tasks.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex justify-between items-center mb-6",
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                    className: "text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight",
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                    className: "text-2xl font-bold text-white",
                                     children: [
-                                        "Hey ",
-                                        user?.firstName || 'student',
-                                        "!"
+                                        "📋 Priority Tasks (",
+                                        tasks.length,
+                                        ")"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/dashboard/page.tsx",
-                                    lineNumber: 18,
-                                    columnNumber: 13
+                                    lineNumber: 143,
+                                    columnNumber: 15
                                 }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-xl text-gray-600 mt-2",
-                                    children: "📚 Syllabus → 📅 Calendar magic"
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: handleDownloadICS,
+                                    className: "bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl transition-all",
+                                    children: "📅 Export .ICS"
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/page.tsx",
-                                    lineNumber: 21,
-                                    columnNumber: 13
+                                    lineNumber: 147,
+                                    columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/dashboard/page.tsx",
-                            lineNumber: 17,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$clerk$2d$react$2f$dist$2f$chunk$2d$36EXAXVP$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserButton"], {
-                            afterSignOutUrl: "/"
-                        }, void 0, false, {
-                            fileName: "[project]/app/dashboard/page.tsx",
-                            lineNumber: 25,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/app/dashboard/page.tsx",
-                    lineNumber: 16,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "bg-white/70 backdrop-blur-xl p-10 rounded-3xl shadow-xl border border-white/50",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                            className: "text-xl font-semibold mb-6 text-gray-800",
-                            children: "Upload Your Syllabus"
-                        }, void 0, false, {
-                            fileName: "[project]/app/dashboard/page.tsx",
-                            lineNumber: 31,
-                            columnNumber: 11
+                            lineNumber: 142,
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "max-w-2xl mx-auto",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                className: "block w-full p-0",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "group relative",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "absolute inset-0 bg-gradient-to-r from-slate-700/50 to-gray-700/50 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/20 shadow-2xl transform hover:scale-[1.02] transition-all duration-300 hover:border-white/40 hover:shadow-purple-500/20"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/dashboard/page.tsx",
-                                            lineNumber: 39,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "relative p-10 md:p-14 rounded-2xl border-2 border-dashed border-transparent bg-slate-800/30 backdrop-blur-xl shadow-2xl cursor-pointer transition-all duration-300 hover:bg-slate-700/40",
+                            className: "overflow-x-auto",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
+                                className: "w-full text-white",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                            className: "border-b border-white/20",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl border-2 border-dashed border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                        className: "w-8 h-8 text-white/60 group-hover:text-white/90 transition-colors",
-                                                        fill: "none",
-                                                        stroke: "currentColor",
-                                                        viewBox: "0 0 24 24",
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                            strokeLinecap: "round",
-                                                            strokeLinejoin: "round",
-                                                            strokeWidth: 2,
-                                                            d: "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/dashboard/page.tsx",
-                                                            lineNumber: 51,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/dashboard/page.tsx",
-                                                        lineNumber: 45,
-                                                        columnNumber: 21
-                                                    }, this)
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                    className: "p-4 text-left font-bold",
+                                                    children: "Priority"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/page.tsx",
-                                                    lineNumber: 44,
-                                                    columnNumber: 19
+                                                    lineNumber: 159,
+                                                    columnNumber: 21
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-lg md:text-xl font-medium text-white/90 mb-2 text-center",
-                                                    children: "Click to upload syllabus"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                    className: "p-4 text-left font-bold",
+                                                    children: "Title"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/page.tsx",
-                                                    lineNumber: 60,
-                                                    columnNumber: 19
+                                                    lineNumber: 160,
+                                                    columnNumber: 21
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-sm text-gray-400 text-center max-w-sm mx-auto",
-                                                    children: "PDF, DOCX, or TXT files up to 10MB. Drag & drop also works."
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                    className: "p-4 text-left font-bold",
+                                                    children: "Course"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/page.tsx",
-                                                    lineNumber: 64,
-                                                    columnNumber: 19
+                                                    lineNumber: 161,
+                                                    columnNumber: 21
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "file",
-                                                    accept: ".pdf,.doc,.docx,.txt",
-                                                    multiple: false,
-                                                    className: "absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                    className: "p-4 text-left font-bold",
+                                                    children: "Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/page.tsx",
-                                                    lineNumber: 68,
-                                                    columnNumber: 19
+                                                    lineNumber: 162,
+                                                    columnNumber: 21
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                    className: "p-4 text-left font-bold",
+                                                    children: "Notes"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/dashboard/page.tsx",
+                                                    lineNumber: 163,
+                                                    columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/dashboard/page.tsx",
-                                            lineNumber: 41,
-                                            columnNumber: 17
+                                            lineNumber: 158,
+                                            columnNumber: 19
                                         }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/dashboard/page.tsx",
-                                    lineNumber: 38,
-                                    columnNumber: 15
-                                }, this)
-                            }, void 0, false, {
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/dashboard/page.tsx",
+                                        lineNumber: 157,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
+                                        children: tasks.map((task, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                className: "border-b border-white/10 hover:bg-white/10 transition-colors",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                        className: "p-4",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: `px-3 py-1 rounded-full text-xs font-bold ${task.priority === 1 ? 'bg-red-500' : task.priority === 2 ? 'bg-orange-500' : 'bg-green-500'}`,
+                                                            children: [
+                                                                "P",
+                                                                task.priority
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/dashboard/page.tsx",
+                                                            lineNumber: 173,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/dashboard/page.tsx",
+                                                        lineNumber: 172,
+                                                        columnNumber: 23
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                        className: "p-4 font-medium",
+                                                        children: task.title
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/dashboard/page.tsx",
+                                                        lineNumber: 185,
+                                                        columnNumber: 23
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                        className: "p-4",
+                                                        children: task.course
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/dashboard/page.tsx",
+                                                        lineNumber: 186,
+                                                        columnNumber: 23
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                        className: "p-4",
+                                                        children: task.date
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/dashboard/page.tsx",
+                                                        lineNumber: 187,
+                                                        columnNumber: 23
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                        className: "p-4 text-sm opacity-90",
+                                                        children: task.notes
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/dashboard/page.tsx",
+                                                        lineNumber: 188,
+                                                        columnNumber: 23
+                                                    }, this)
+                                                ]
+                                            }, i, true, {
+                                                fileName: "[project]/app/dashboard/page.tsx",
+                                                lineNumber: 168,
+                                                columnNumber: 21
+                                            }, this))
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/dashboard/page.tsx",
+                                        lineNumber: 166,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/app/dashboard/page.tsx",
-                                lineNumber: 37,
-                                columnNumber: 13
+                                lineNumber: 156,
+                                columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/dashboard/page.tsx",
-                            lineNumber: 36,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            className: "mt-8 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-6 rounded-2xl text-xl font-semibold shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-200",
-                            children: "Create Your Success Now"
-                        }, void 0, false, {
-                            fileName: "[project]/app/dashboard/page.tsx",
-                            lineNumber: 80,
-                            columnNumber: 11
+                            lineNumber: 155,
+                            columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/dashboard/page.tsx",
-                    lineNumber: 29,
-                    columnNumber: 9
+                    lineNumber: 141,
+                    columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/dashboard/page.tsx",
-            lineNumber: 13,
+            lineNumber: 82,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/dashboard/page.tsx",
-        lineNumber: 12,
+        lineNumber: 81,
         columnNumber: 5
     }, this);
 }
-_s(Dashboard, "ZUuuSKp+2uHP0mhnxk9mE4npcsg=", false, function() {
-    return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$clerk$2f$shared$2f$dist$2f$runtime$2f$react$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useUser"]
-    ];
-});
+_s(Dashboard, "W/1fM+XBfzp1sBwHbEf1VWt+C7w=");
 _c = Dashboard;
 var _c;
 __turbopack_context__.k.register(_c, "Dashboard");

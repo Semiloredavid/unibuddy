@@ -1,88 +1,202 @@
-'use client'
+'use client';
 
-import { useUser } from '@clerk/nextjs'
-import { UserButton } from '@clerk/nextjs'
+import { useState } from 'react';
+import { UserButton } from '@clerk/nextjs';
 
 export default function Dashboard() {
-  const { user, isLoaded } = useUser()
+  const [files, setFiles] = useState<File[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  if (!isLoaded) return <div>Loading...</div>
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files).slice(0, 6));
+    }
+  };
+
+  // Parse PDFs
+  const handleParse = async () => {
+    if (files.length === 0) return;
+
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+
+    try {
+      const res = await fetch('/api/parse', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Parsing failed');
+      }
+
+      setTasks(data.tasks || []);
+    } catch (err: any) {
+      setError(err.message);
+    }
+
+    setLoading(false);
+  };
+
+  // Download ICS dynamically from tasks
+  const handleDownloadICS = async () => {
+    if (!tasks.length) return;
+
+    try {
+      const res = await fetch('/api/calendar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tasks }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to generate calendar');
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'unibuddy-calendar.ics';
+      a.click();
+
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-12">
-      <div className="max-w-4xl mx-auto space-y-8">
-        
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-900 p-8">
+      <div className="max-w-5xl mx-auto">
+
         {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-              Hey {user?.firstName || 'student'}!
-            </h1>
-            <p className="text-xl text-gray-600 mt-2">
-              📚 Syllabus → 📅 Calendar magic
-            </p>
-          </div>
-          <UserButton afterSignOutUrl="/" />
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Unibuddy Dashboard
+          </h1>
+          <UserButton />
         </div>
 
-        {/* Upload Card */}
-        <div className="bg-white/70 backdrop-blur-xl p-10 rounded-3xl shadow-xl border border-white/50">
-          
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">
-            Upload Your Syllabus
+        {/* Upload Section */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 mb-8 border border-white/20">
+          <h2 className="text-2xl font-bold mb-4 text-white">
+            Upload Syllabi (1–6 PDFs)
           </h2>
 
-          {/* Document Upload Input */}
-          <div className="max-w-2xl mx-auto">
-            <label className="block w-full p-0">
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-700/50 to-gray-700/50 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/20 shadow-2xl transform hover:scale-[1.02] transition-all duration-300 hover:border-white/40 hover:shadow-purple-500/20"></div>
+          <input
+            type="file"
+            multiple
+            accept=".pdf,.docx"
+            onChange={handleFileChange}
+            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 w-full max-w-md px-4 py-6 border-2 border-dashed border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors"
+          />
 
-                <div className="relative p-10 md:p-14 rounded-2xl border-2 border-dashed border-transparent bg-slate-800/30 backdrop-blur-xl shadow-2xl cursor-pointer transition-all duration-300 hover:bg-slate-700/40">
-                  
-                  {/* Icon */}
-                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl border-2 border-dashed border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg 
-                      className="w-8 h-8 text-white/60 group-hover:text-white/90 transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                      />
-                    </svg>
-                  </div>
-
-                  <p className="text-lg md:text-xl font-medium text-white/90 mb-2 text-center">
-                    Click to upload syllabus
-                  </p>
-
-                  <p className="text-sm text-gray-400 text-center max-w-sm mx-auto">
-                    PDF, DOCX, or TXT files up to 10MB. Drag & drop also works.
-                  </p>
-
-                  <input 
-                    type="file"
-                    accept=".pdf,.doc,.docx,.txt"
-                    multiple={false}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
+          {/* Selected Files */}
+          <div className="mt-4 space-y-2">
+            {files.map((file, i) => (
+              <div key={i} className="flex justify-between text-sm text-white/80">
+                <span>{file.name}</span>
+                <button
+                  onClick={() =>
+                    setFiles(files.filter((_, idx) => idx !== i))
+                  }
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
               </div>
-            </label>
+            ))}
           </div>
 
-          {/* Parse Button */}
-          <button className="mt-8 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-6 rounded-2xl text-xl font-semibold shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-200">
-             Create Your Success Now
+          <button
+            onClick={handleParse}
+            disabled={loading || files.length === 0}
+            className="mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            {loading ? 'Parsing...' : `Parse ${files.length} File${files.length > 1 ? 's' : ''}`}
           </button>
-
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-xl mb-6">
+            {error}
+          </div>
+        )}
+
+        {/* Tasks Table */}
+        {tasks.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                📋 Priority Tasks ({tasks.length})
+              </h2>
+
+              <button
+                onClick={handleDownloadICS}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl transition-all"
+              >
+                📅 Export .ICS
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-white">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="p-4 text-left font-bold">Priority</th>
+                    <th className="p-4 text-left font-bold">Title</th>
+                    <th className="p-4 text-left font-bold">Course</th>
+                    <th className="p-4 text-left font-bold">Date</th>
+                    <th className="p-4 text-left font-bold">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tasks.map((task, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-white/10 hover:bg-white/10 transition-colors"
+                    >
+                      <td className="p-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            task.priority === 1
+                              ? 'bg-red-500'
+                              : task.priority === 2
+                              ? 'bg-orange-500'
+                              : 'bg-green-500'
+                          }`}
+                        >
+                          P{task.priority}
+                        </span>
+                      </td>
+                      <td className="p-4 font-medium">{task.title}</td>
+                      <td className="p-4">{task.course}</td>
+                      <td className="p-4">{task.date}</td>
+                      <td className="p-4 text-sm opacity-90">
+                        {task.notes}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
-  )
+  );
 }

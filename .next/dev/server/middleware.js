@@ -1,6 +1,10 @@
 var R=require("./chunks/[turbopack]_runtime.js")("server/middleware.js")
-R.c("server/chunks/node_modules_next_headers_4209d76a.js")
-R.c("server/chunks/node_modules_ae27c652._.js")
-R.c("server/chunks/[root-of-the-server]__b3e506bf._.js")
+R.c("server/chunks/node_modules_next_headers_5f42bd95.js")
+R.c("server/chunks/node_modules_next_6ba177ec._.js")
+R.c("server/chunks/node_modules_@opentelemetry_api_build_esm_5558035f._.js")
+R.c("server/chunks/node_modules_@clerk_backend_dist_d439fb98._.js")
+R.c("server/chunks/node_modules_@clerk_nextjs_dist_esm_53b54604._.js")
+R.c("server/chunks/node_modules_@clerk_shared_dist_runtime_7cbca136._.js")
+R.c("server/chunks/[root-of-the-server]__307cb00a._.js")
 R.m("[project]/node_modules/next/dist/esm/build/templates/middleware.js { INNER_MIDDLEWARE_MODULE => \"[project]/proxy.ts [middleware] (ecmascript)\" } [middleware] (ecmascript)")
 module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/middleware.js { INNER_MIDDLEWARE_MODULE => \"[project]/proxy.ts [middleware] (ecmascript)\" } [middleware] (ecmascript)").exports
